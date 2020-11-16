@@ -55,6 +55,7 @@
 import interventionsJson from "../../data/interventions.json";
 import Intervention from "../components/Intervention.vue";
 import Fuse from "fuse.js";
+import axios from 'axios';
 
 export default {
   name: "ShowInterventions",
@@ -62,7 +63,7 @@ export default {
     return {
       // fuseIntervention: new Fuse(interventionsJson),
       // interventions: fuseIntervention.search(""),
-      interventions: interventionsJson,
+      interventions: [],
       search: "",
       oldsearch: "",
       length: 0,
@@ -76,6 +77,16 @@ export default {
       stateSearch:"1",
     };
   },
+
+  created()
+  {
+    axios.get('http://localhost:8080/interventions',{headers: {}})
+    .then(response =>{ this.interventions = response.data
+
+    })
+    console.log(this.interventions);
+  },
+
   computed: {
     testinterventions() {
       if (this.oldsearch != this.search) {
@@ -90,7 +101,7 @@ export default {
       const ListIntervention = [];
 
       const borneMax = Math.min(this.currentPage * this.step, this.length);
-
+      
       for (
         let index = (this.currentPage - 1) * this.step;
         index < borneMax;
@@ -208,20 +219,17 @@ export default {
       }
     },
     deleteIntervention(id) {
-      this.interventions = this.interventions.filter((inter) => inter.id != id);
+       axios.delete('http://localhost:8080/interventions/' + id,{headers: {}})
+    .then(response =>{ this.interventions = this.interventions.filter((inter) => inter.id != id)
+
+    })
+
     },
-    editIntervention(id,modifyTitle,modifyDescriptionodifyOperator,modifyCompleted)
+    editIntervention(id,modifyTitle,modifyDescription,modifyOperator,modifyCompleted)
     {
-         this.interventions = this.interventions.filter((inter) => {
-             if(inter.id === id)
-             {
-                 inter.title = modifyTitle;
-                 inter.description= modifyDescription;
-                 inter.operator = modifyOperator
-                 inter.completed = modifyCompleted
-             }
-             return inter;
-         });
+      const strBody = {title: modifyTitle, description: modifyDescription, operator: modifyOperator, completed: modifyCompleted}
+      axios.put('http://localhost:8080/interventions/' + id, strBody, {headers: {}}).then(response => {this.interventions = response.data })
+
     },
     SortId() {
       if (this.columnSortId < 2) {

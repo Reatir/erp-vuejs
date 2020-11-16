@@ -37,21 +37,31 @@
 
 <script>
 
-import interventionsJson from '../../data/interventions.json'
+import axios from 'axios'
 
 export default {
     name: 'Formulaire',
     data(){
         return {
-            title:interventionsJson[this.$route.params.id].title,
-            description: interventionsJson[this.$route.params.id].description,
-            technicien: interventionsJson[this.$route.params.id].operator,
-            completed: !interventionsJson[this.$route.params.id].completed,
+            id:0,
+            title:'',
+            description:'',
+            technicien:'',
+            completed: false,
         }
+    },
+
+    created(){
+      const id = this.$route.params.id;
+      this.id = id;
+      axios.get('http://localhost:8080/interventions/' + id,{headers: {}}).then(response => { this.title = response.data.title, this.description = response.data.description,
+      this.technicien = response.data.operator, this.completed = response.data.completed})
+
     },
     methods: {
         handleSubmit(){
-             //interventionsJson[this.$route.params.id].title="ok";
+          const strBody = {title: this.title, description: this.description, operator: this.technicien, completed: this.completed}
+          axios.put('http://localhost:8080/interventions/' + this.id, strBody, {headers: {}}).then(response => {this.interventions = response.data })
         }
 
     }

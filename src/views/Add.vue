@@ -7,6 +7,7 @@
 <script>
 
 import Formulaire from '../components/Formulaire.vue'
+import axios from 'axios'
 export default {
   name: 'Add',
   components:{
@@ -15,7 +16,8 @@ export default {
   },
   methods:{
       handleNewIntervention(inter){
-          console.log(inter);
+        const strBody = {title: inter.titre, description: inter.description, operator: inter.technicien, completed: false}
+        axios.post('http://localhost:8080/interventions/', strBody, {headers: {}}).then(response => {this.interventions = response.data })
       }
   }
 }
